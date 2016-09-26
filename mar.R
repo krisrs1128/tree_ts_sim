@@ -5,6 +5,22 @@
 # and children.
 ###############################################################################
 
+#' @title MAR process, given all parameters
+#' @description This propagates a MAR process given the mixing matrices A and
+#' innovations eps. While this is more memory intensive than computing eps on
+#' the fly, this lets us experiment with different noise structures more easily.
+#' @param x0 [p x k matrix] A vector representing the time series for the root
+#' node.
+#' @param el [N x 2 matrix] A matrix whose rows are  edges between parents and
+#' children.
+#' @param A [length V list of p x p matrices] A list whose names are the names
+#' of vertices in el, and whose values are the mixing matrices associated with
+#' each node.
+#' @param eps [length V list of p x k vectors] A list whose names are the names
+#' of vertices in el, and whose values are the innovation matrices associated
+#' with each node.
+#' @return X [list of matrices] A list giving the simulated MAR process, whose
+#' v^th element is the simulated matrix for node v.#'
 mar <- function(x0, el, A, eps) {
   stopifnot(length(dim(x0)) == 2)
 
