@@ -41,6 +41,60 @@ mar <- function(x0, el, A, eps) {
   X
 }
 
+
+#' @title Normalize mixing matrices so children sum to identity
+#' @description The constraint that keeps the children in a MAR process sum to
+#' the parent (at each time point) is that the sum of the mixing matrices for
+#' sibling nodes is the identity. Given a list of matrices that don't respect
+#' this constraint, normalize them so that they do.
+#' @param el [N x 2 matrix] A matrix whose rows are  edges between parents and
+#' children.
+#' @param A0 [list of p x p matrices] A list of matrices with names equal to the
+#' entries in el.
+#' @return A [list of p x p matrices] A new list of matrices that respect the
+#' "sum to parent" constraint.
+#' @examples
+#' el <- matrix(
+#'   c("1", "2", "1", "3", "2", "4", "2", "5", "3", "6", "3", "7"),
+#'   ncol = 2,
+#'   byrow = TRUE
+#' )
+#' A0 <- lapply(2:7, function(i) matrix(rnorm(100), 10, 10))
+#' names(A0) <- 2:7
+#' normalize_tree_mixing(el, A0)
+normalize_tree_mixing <- function(el, A0) {
+  A <- list()
+  parents <- unique(el[, 1])
+
+  for (i in seq_along(parents)) {
+    children <- el[which(el[, 1] == parents[i]), 2]
+    cur_A  <- A0[children]
+    A <- c(A, sum_to_identity(cur_A))
+  }
+  A
+}
+
+#' @title Generate mixing matrices respecting tree structure
+#' @description This wraps normalize_tree_mixing to generate random gaussian
+#' matrices and modify them to sum to I.
+#' @param el [N x 2 matrix] A matrix whose rows are  edges between parents and
+#' children.
+#' @param p [int] The dimension of each (square) A matrix to generate.
+#' @param mean [numeric] The mean of the gaussian noise to generate in the first
+#' step.
+#' @param sd [numeric] The SD of the gaussian noise to generate in the first
+#' step.
+#' @return A [list of p x p matrices] A list of random matrices respecting the
+#' "sum to I" across siblings constraint.
+gaussian_tree_mixing <- function(el, p = 10, mean = 0, sd = 1) {
+  root <- setdiff(el[, 1], el[, 2])
+  v <- setdiff(unique(el), root)
+
+  A0 <- lapply(v, function(i) { rnorm(p * p, p, mean, sd) })
+  names(A0) <- v
+  normalize_tree_mixing(el, A0)
+}
+
 #' @title Make list of matrices to sum to I
 #' @description Given a list of initial matrices, generate a final list whose
 #' sum is the identity. We use the cycling approach,
