@@ -33,3 +33,9 @@ test_that("Generates sum given mixture of identities.", {
 
   expect_equal(mar(x0, el, A, eps), X)
 })
+
+test_that("Sum to identity converges...", {
+  X0 <- lapply(1:100, function(x) { matrix(rnorm(100), 10, 10) })
+  X <- sum_to_identity(X0)
+  expect_equal(Reduce("+", X), diag(10))
+})
