@@ -40,3 +40,25 @@ mar <- function(x0, el, A, eps) {
   }
   X
 }
+
+#' @title Make list of matrices to sum to I
+#' @description Given a list of initial matrices, generate a final list whose
+#' sum is the identity. We use the cycling approach,
+#' A_{1}(1) = I - A_{2}(0) - A_{3}(0) ...
+#' then,
+#' A_{2}(1) = I - A_{1}(1)- A_{3)(0)...
+#' and hope it converges to something whose sum is the identity.
+#' @param X_list [list of p x p matrices] Matrices to use as initialization to
+#' this algorithm.
+#' @param n_iter The number of cycles to run. Probably should check for
+#' convergence, but this is cheaper.
+#' @return X_list [list of p x p matrices] Matrices whose sum is the identity.
+sum_to_identity <- function(X_list, n_iter = 10) {
+  p <- nrow(X_list[[1]])
+  for (iter in seq_len(n_iter)) {
+    for (i in seq_along(X_list)) {
+      X_list[[i]] <- diag(p) - Reduce("+", X_list[-i])
+    }
+  }
+  X_list
+}
