@@ -14,11 +14,11 @@ test_that("Generates sum given mixture of identities.", {
   names(eps) <- v
 
   p <- 10
-  x0 <- rnorm(p)
+  x0 <- matrix(rnorm(p), p, 1)
 
   for (i in seq_along(v)) {
     A[[v[i]]] <- .5 * diag(p) # binary tree
-    eps[[v]] <- rep(0, p)
+    eps[[v[i]]] <- rep(0, p)
   }
 
   X <- list(
@@ -32,5 +32,4 @@ test_that("Generates sum given mixture of identities.", {
   )
 
   expect_equal(mar(x0, el, A, eps), X)
-
 })
