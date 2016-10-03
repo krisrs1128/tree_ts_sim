@@ -19,13 +19,14 @@
 #'   geom_point(aes(x = times, y = value, col = L1))
 tree_sum <- function(node_fun, el, ...) {
   args <- list(...)
-  x0 <- node_fun(args$times, args$bandwidth)
+
+  x0 <- do.call(node_fun, args)
   p <- length(x0)
 
   nodes <- unique(as.character(el))
   eps <- replicate(
     length(nodes),
-    node_fun(args$times, args$bandwidth),
+    do.call(node_fun, args),
     simplify = FALSE
   )
   names(eps) <- nodes
