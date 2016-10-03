@@ -21,6 +21,7 @@
 #' with each node.
 #' @return X [list of matrices] A list giving the simulated MAR process, whose
 #' v^th element is the simulated matrix for node v.#'
+#' @importFrom igraph graph.edgelist distanes
 mar <- function(x0, el, A, eps) {
   stopifnot(length(dim(x0)) == 2)
 
@@ -28,6 +29,13 @@ mar <- function(x0, el, A, eps) {
   root <- setdiff(el[, 1], el[, 2])
   X <- list()
   X[[root]] <- x0
+
+  # put edgelist in tree depth order
+  G <- graph.edgelist(el)
+  depths <- distances(G, v = "Bacteria", mode = "out")
+  depths <- setNames(depths[1, ], colnames(depths))
+  el <- cbind(el, depth = depths[el[, 1]])
+  el <- el[order(el[, "depth"]), ]
 
   # proceed down tree
   parents <- unique(el[, 1])
